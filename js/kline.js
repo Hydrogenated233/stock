@@ -124,9 +124,9 @@ function setupEventListeners() {
         dragStartY = currentY;
         
         offsetX -= deltaX;
-        // 增加左侧空白区域的限制
-        const leftBlankSpace = candleWidth; // 左侧一个K线的空白宽度
-        const maxOffsetX = klineData.length * candleWidth - chartWidth + leftBlankSpace;
+        // 增加左右空白区域的限制
+        const sideBlankSpace = candleWidth; // 左右各一个K线的空白宽度
+        const maxOffsetX = klineData.length * candleWidth - chartWidth + sideBlankSpace * 2;
         offsetX = Math.max(0, Math.min(offsetX, maxOffsetX));
         
         offsetY += deltaY;
@@ -164,9 +164,9 @@ function setupEventListeners() {
         const dataIndex = Math.floor((mouseX + offsetX) / (chartWidth / oldVisibleCandles));
         offsetX = dataIndex * candleWidth - mouseX;
         
-        // 增加左侧空白区域的限制
-        const leftBlankSpace = candleWidth;
-        const maxOffsetX = klineData.length * candleWidth - chartWidth + leftBlankSpace;
+        // 增加左右空白区域的限制
+        const sideBlankSpace = candleWidth;
+        const maxOffsetX = klineData.length * candleWidth - chartWidth + sideBlankSpace * 2;
         offsetX = Math.max(0, Math.min(offsetX, maxOffsetX));
         
         drawKLine();
@@ -178,9 +178,9 @@ function drawKLine() {
     
     drawBackground();
     
-    // 计算可见的数据范围（考虑左侧空白区域）
-    const leftBlankSpace = candleWidth; // 左侧一个K线的空白宽度
-    const adjustedOffsetX = offsetX - leftBlankSpace; // 调整后的偏移量
+    // 计算可见的数据范围（考虑左右空白区域）
+    const sideBlankSpace = candleWidth; // 左右各一个K线的空白宽度
+    const adjustedOffsetX = offsetX - sideBlankSpace; // 调整后的偏移量
     const startIndex = Math.floor(Math.max(0, adjustedOffsetX) / candleWidth);
     const endIndex = Math.min(klineData.length, startIndex + visibleCandles);
     
@@ -188,7 +188,7 @@ function drawKLine() {
     
     drawAxes();
     drawGrid();
-    drawCandles(visibleData, startIndex, leftBlankSpace);
+    drawCandles(visibleData, startIndex, sideBlankSpace);
     drawPriceLabels();
     drawTimeLabels();
     drawTitle();
@@ -267,7 +267,7 @@ function drawGrid() {
     }
 }
 
-function drawCandles(visibleData, startIndex, leftBlankSpace) {
+function drawCandles(visibleData, startIndex, sideBlankSpace) {
     const adjustedRange = getAdjustedPriceRange();
     const { min, range } = adjustedRange;
     
@@ -278,8 +278,8 @@ function drawCandles(visibleData, startIndex, leftBlankSpace) {
     ctx.clip();
     
     visibleData.forEach((candle, index) => {
-        // 调整X坐标计算，考虑左侧空白区域
-        const x = padding.left + (index * candleWidth) - (offsetX % candleWidth) + leftBlankSpace;
+        // 调整X坐标计算，考虑左右空白区域
+        const x = padding.left + (index * candleWidth) - (offsetX % candleWidth) + sideBlankSpace;
         
         const bodyWidth = Math.max(2, candleWidth * 0.7);
         const bodyX = x - bodyWidth / 2;
@@ -367,8 +367,8 @@ function drawTimeLabels() {
 
 function drawTitle() {
     // 计算当前显示的数据范围
-    const leftBlankSpace = candleWidth;
-    const adjustedOffsetX = offsetX - leftBlankSpace;
+    const sideBlankSpace = candleWidth;
+    const adjustedOffsetX = offsetX - sideBlankSpace;
     const startIndex = Math.floor(Math.max(0, adjustedOffsetX) / candleWidth);
     const endIndex = Math.min(klineData.length, startIndex + visibleCandles);
     const lastCandle = klineData[Math.min(endIndex-1, klineData.length-1)];
